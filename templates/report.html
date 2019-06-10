@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <page size="A4">
+        <div class="mainDetails">
+            <div id="photo">
+                <img src="photo.jpg" />
+            </div>
+            <div id="name">
+                <h1>{{ fio }}</h1>
+            </div>
+        </div>
+        <table>
+            <tr>
+                <td class="summarySection">Контактные данные: телефон, e-mail</td>
+                <td>{{ contacts }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Дата рождения</td>
+                <td>{{ date_of_birth }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Гражданство (приложить скан первого разворота паспорта)</td>
+                <td>{{ citizenship }}</td>
+            </tr>
+        </table>
+        <h3>Профессиональный и управленческий опыт</h3>
+        <table>
+            <tr>
+                <td class="summarySection">Текущая должность и место работы</td>
+                <td>{{ current_position }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Область (сфера) текущей деятельности</td>
+                <td>{{ current_activity_area }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Вид профессиональной деятельности (направление)</td>
+                <td>{{ current_activity_type }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Опыт профессиональной деятельности (опишите свою предыдущаю работу за последние 5 лет)</td>
+                <td>{{ professional_experience }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Опыт управленческой деятельности, в том числе уровень решения управленческих задач</td>
+                <td>{{ management_experience }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Опыт работы в органах государственной власти и местного самоуправления</td>
+                <td>{{ government_experience }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Масштаб управленческой деятельности (с указанием количества управляемых объектов)</td>
+                <td>{{ management_experience_scale }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Наличие наград, поощрений, знаков отличия и др. в профессиональной сфере (с приложением сканов документов)</td>
+                <td>{{ awards_presence }}</td>
+            </tr>
+        </table>
+        <h3>Карьерные перспективы</h3>
+        <table>
+            <tr>
+                <td class="summarySection">В каком органе власти и какой желаемый уровень должности готов(а) замещать</td>
+                <td>{{ desired_authority_and_post_level }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Отрась, в которой изъявляет желание работать в ближайшей перспективе (нужное подчеркнуть)</td>
+                <td>{{ perspective_activity }}</td>
+            </tr>
+        </table>
+        <h3>Дополнительные сведения</h3>
+        <table>
+            <tr>
+                <td class="summarySection">Семейное положение</td>
+                <td>{{ family_status }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Дети</td>
+                <td>{{ children }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Служба в армии</td>
+                <td>{{ military_service }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Уровень и направление образования (с приложением скана диплома)</td>
+                <td>{{ education_level_and_direction }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Дополнительное образование</td>
+                <td>{{ additional_education }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Классный чин, ученая степень, воинское, специальное или иное звание, ранг и т.д.</td>
+                <td>{{ rank }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Иностранные языки</td>
+                <td>{{ foreign_languages }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Хобби</td>
+                <td>{{ hobby }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Опыт общественной, волонтерской, партийной деятельности</td>
+                <td>{{ social_activities_experience }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Оформлялся ли ранее допуск к государственной тайне</td>
+                <td>{{ state_secrets_access }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Готовность оформить доступ к государственной тайне</td>
+                <td>{{ willingness_state_secrets_access }}</td>
+            </tr>
+            <tr>
+                <td class="summarySection">Судимость (в т.ч. снятая или погашенная) или нахождение под следствием</td>
+                <td>{{ criminal_record }}</td>
+            </tr>
+        </table>
+    </page>
+</body>
+</html>

@@ -10,6 +10,35 @@ session = sessionmaker(bind=config.ENGINE)()
 
 
 class CV:
+    db_codenames = {'dateofbirth': 'date_of_birth',
+                    'workplace1': 'current_position',
+                    'fieldofwork': 'current_activity_area',
+                    'typeofwork': 'current_activity_type',
+                    'work5years': 'professional_experience',
+                    'workrealmanager': 'management_experience',
+                    'workgov': 'government_experience',
+                    'workrealdeal': 'management_experience_scale',
+                    'workwhere': 'desired_authority_and_post_level',
+                    'studyplus': 'additional_education',
+                    'whoisit': 'rank',
+                    'englichanin': 'foreign_languages',
+                    'hobby': 'hobby',
+                    'volunteer': 'social_activities_experience',
+                    'govsecret': 'state_secrets_access',
+                    'withwho': 'family_status',
+                    'govsecretready': 'willingness_state_secrets_access',
+                    'ayylmao': 'criminal_record',
+                    'kids': 'children',
+                    'army': 'military_service',
+                    'study': 'education_level_and_direction',
+                    'passportofcountry': 'citizenship',
+                    'nagradas': 'awards_presence'
+                    }
+
+    activity_codenames = ['ecoandnature', 'thingandearth', 'selhoz', 'dorogi',
+                          'cultandtourism', 'zkh', 'zdrav', 'studyandyoung',
+                          'social', 'buildings', 'infotech', 'economyandfin']
+
     def __init__(self):
         self.fio = ''
         self.contacts = ''
@@ -37,6 +66,9 @@ class CV:
         self.state_secrets_access = ''
         self.criminal_record = ''
 
+    def update_cv(self, codename, value):
+        self.__setattr__(self.db_codenames[codename], value)
+
 
 def make_pdf(name="out.pdf"):
     path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
@@ -58,55 +90,17 @@ def get_user_cv_from_db(user_id):
                                'alternatename', 'shortname', 'field_name', 'data'])
     cv = CV()
     cv.fio = df.T[0]['lastname'] + df.T[0]['firstname']
+    perspective_activities = []
     for idx, row in df.iterrows():
         if row['shortname'] == 'phonenumber1':
             cv.contacts = row['data'] + '; ' + row['email']
-        if row['shortname'] == 'dateofbirth':
-            cv.date_of_birth = row['data']
-        if row['shortname'] == 'workplace1':
-            cv.current_position = row['data']
-        if row['shortname'] == 'fieldofwork':
-            cv.current_activity_area = row['data']
-        if row['shortname'] == 'typeofwork':
-            cv.current_activity_type = row['data']
-        if row['shortname'] == 'work5years':
-            cv.professional_experience = row['data']
-        if row['shortname'] == 'workrealmanager':
-            cv.management_experience = row['data']
-        if row['shortname'] == 'workgov':
-            cv.government_experience = row['data']
-        if row['shortname'] == 'workrealdeal':
-            cv.management_experience_scale = row['data']
-        if row['shortname'] == 'workwhere':
-            cv.desired_authority_and_post_level = row['data']
-        if row['shortname'] == 'studyplus':
-            cv.additional_education = row['data']
-        if row['shortname'] == 'whoisit':
-            cv.rank = row['data']
-        if row['shortname'] == 'englichanin':
-            cv.foreign_languages = row['data']
-        if row['shortname'] == 'hobby':
-            cv.hobby = row['data']
-        if row['shortname'] == 'volunteer':
-            cv.social_activities_experience = row['data']
-        if row['shortname'] == 'govsecret':
-            cv.state_secrets_access = row['data']
-        if row['shortname'] == 'withwho':
-            cv.family_status = row['data']
-        if row['shortname'] == 'govsecretready':
-            cv.willingness_state_secrets_access = row['data']
-        if row['shortname'] == 'ayylmao':
-            cv.criminal_record = row['data']
-        if row['shortname'] == 'kids':
-            cv.children = row['data']
-        if row['shortname'] == 'army':
-            cv.military_service = row['data']
-        if row['shortname'] == 'study':
-            cv.education_level_and_direction = row['data']
-        if row['shortname'] == 'passportofcountry':
-            cv.citizenship = row['data']
-        if row['shortname'] == 'nagradas':
-            cv.awards_presence = row['data']
+        elif row['shortname'] in cv.activity_codenames:
+            if row['data'] == '1':
+                perspective_activities.append(row['field_name'])
+        else:
+            cv.update_cv(row['shortname'], row['data'])
+    if perspective_activities:
+        cv.perspective_activity = '; '.join(perspective_activities)
     return cv
 
 
@@ -117,3 +111,4 @@ output_from_parsed_template = template.render(cv.__dict__)
 with open("new_report.html", "w", encoding='utf-8') as f:
     f.write(output_from_parsed_template)
 make_pdf()
+# print_doc()

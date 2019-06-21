@@ -32,7 +32,8 @@ class CV:
                     'army': 'military_service',
                     'study': 'education_level_and_direction',
                     'passportofcountry': 'citizenship',
-                    'nagradas': 'awards_presence'
+                    'nagradas': 'awards_presence',
+                    'otchestvo': 'patronymic'
                     }
 
     activity_codenames = ['ecoandnature', 'thingandearth', 'selhoz', 'dorogi',
@@ -71,29 +72,30 @@ class CV:
 
 
 def make_pdf(name="out.pdf"):
-    path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-    configuration = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-    pdfkit.from_file("C:\\projects\\team74\\new_report.html", name, configuration=configuration)
+    configuration = pdfkit.configuration(wkhtmltopdf=config.PATH_WKTHMLTOPDF)
+    pdfkit.from_file(os.path.join(os.path.curdir, "new_report.html"), name, configuration=configuration)
 
 
 def print_doc(name="out.pdf"):
     os.startfile(name, "print")
 
 
-def get_user_cv_from_db(user_id):
+def get_user_cv_from_db(username):
     with open('cv_info.sql', 'r') as f:
         query = f.read()
-    df = pd.DataFrame(session.execute(query.format(user_id)).fetchall(),
+    df = pd.DataFrame(session.execute(query.format(username)).fetchall(),
                       columns=['username', 'firstname', 'lastname', 'email',
                                'icq', 'skype', 'institution', 'department',
                                'address', 'city', 'description', 'middlename',
                                'alternatename', 'shortname', 'field_name', 'data'])
     cv = CV()
-    cv.fio = df.T[0]['lastname'] + df.T[0]['firstname']
+    cv.fio = df.T[0]['lastname'] + ' ' + df.T[0]['firstname']
     perspective_activities = []
     for idx, row in df.iterrows():
         if row['shortname'] == 'phonenumber1':
             cv.contacts = row['data'] + '; ' + row['email']
+        elif row['shortname'] == 'otchestvo':
+            cv.fio += ' ' + row['data']
         elif row['shortname'] in cv.activity_codenames:
             if row['data'] == '1':
                 perspective_activities.append(row['field_name'])
@@ -104,11 +106,12 @@ def get_user_cv_from_db(user_id):
     return cv
 
 
-env = Environment(loader=FileSystemLoader('templates'))
-template = env.get_template('report.html')
-cv = get_user_cv_from_db(2)
-output_from_parsed_template = template.render(cv.__dict__)
-with open("new_report.html", "w", encoding='utf-8') as f:
-    f.write(output_from_parsed_template)
-make_pdf()
-# print_doc()
+if __name__ == '__main__':
+    env = Environment(loader=FileSystemLoader('templates'))
+    template = env.get_template('report.html')
+    cv = get_user_cv_from_db('suadmin')
+    output_from_parsed_template = template.render(cv.__dict__)
+    with open("new_report.html", "w", encoding='utf-8') as f:
+        f.write(output_from_parsed_template)
+    make_pdf()
+    # print_doc()

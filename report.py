@@ -4,6 +4,7 @@ from jinja2 import Environment, FileSystemLoader
 import config
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
+import win32com.client
 
 
 session = sessionmaker(bind=config.ENGINE)()
@@ -76,6 +77,15 @@ def make_pdf(name="out.pdf"):
     pdfkit.from_file(os.path.join(os.path.curdir, "new_report.html"), name, configuration=configuration)
 
 
+def make_doc(name="out.doc"):
+    word = win32com.client.Dispatch('Word.Application')
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    doc = word.Documents.Add(os.path.join(current_dir, 'new_report.html'))
+    doc.SaveAs(os.path.join(current_dir, name), FileFormat=0)
+    doc.Close()
+    word.Quit()
+
+
 def print_doc(name="out.pdf"):
     os.startfile(name, "print")
 
@@ -113,5 +123,6 @@ if __name__ == '__main__':
     output_from_parsed_template = template.render(cv.__dict__)
     with open("new_report.html", "w", encoding='utf-8') as f:
         f.write(output_from_parsed_template)
-    make_pdf()
+    # make_pdf()
+    # make_doc()
     # print_doc()

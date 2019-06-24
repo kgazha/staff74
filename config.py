@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 
 DATABASE_NAME = 'moodle'
 DATABASE_HOST = '10.14.1.94'
+# DATABASE_HOST = 'localhost'
 DATABASE_PASSWORD = 'Ue<tH%2HfP6GhJDfQl&!'
 
 DATABASE_USER = 'postgres'
@@ -21,4 +22,6 @@ SUCCESSFUL_TEMPLATE = 'successful_template.txt'
 SENT_EMAILS_FILENAME = 'sent_emails.pkl'
 SENT_CVS = 'sent_cvs.pkl'
 SMTP_SERVER = 'mail.gov74.ru'
-BASE_DIR = 'Z:\Отчеты OTRS\CallCenter'
+# BASE_DIR = 'Z:\команда74'
+BASE_DIR = 'Z:\Отчеты OTRS\НЕ_ОТКРЫВАТЬ'
+MOODLEDATA_DIR = r'C:\server\moodledata\repository'

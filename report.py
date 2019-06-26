@@ -80,7 +80,7 @@ def make_pdf(name="out.pdf"):
 def make_doc(name="out.doc"):
     word = win32com.client.Dispatch('Word.Application')
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    doc = word.Documents.Add(os.path.join(current_dir, 'new_report.html'))
+    doc = word.Documents.Add(os.path.join(current_dir, 'new_report_doc.html'))
     doc.SaveAs(os.path.join(current_dir, name), FileFormat=0)
     doc.Close()
     word.Quit()
@@ -120,9 +120,11 @@ if __name__ == '__main__':
     env = Environment(loader=FileSystemLoader('templates'))
     template = env.get_template('report.html')
     cv = get_user_cv_from_db('suadmin')
+
     output_from_parsed_template = template.render(cv.__dict__)
     with open("new_report.html", "w", encoding='utf-8') as f:
         f.write(output_from_parsed_template)
+    # make_document(cv)
     # make_pdf()
     # make_doc()
     # print_doc()

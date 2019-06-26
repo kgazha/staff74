@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import config
 import os.path
 import pickle
@@ -11,9 +12,9 @@ from sqlalchemy.orm import sessionmaker
 
 
 session = sessionmaker(bind=config.ENGINE)()
-sql_form = open('user_files.sql').read()
-sql_result = session.execute(sql_form)
-df = pd.DataFrame(sql_result.fetchall(), columns=sql_result.keys())
+completed_tests_sql = open('completed_tests.sql').read()
+completed_tests = session.execute(completed_tests_sql)
+df = pd.DataFrame(completed_tests.fetchall(), columns=completed_tests.keys())
 sent_cvs = []
 url = 'https://команда74.рф/konkurs/pluginfile.php'
 
@@ -47,7 +48,7 @@ def form_to_excel(form, form_name, columns):
     row_format = get_row_format(workbook)
     for idx, key in enumerate(columns):
         worksheet.write(0, idx, key, header_format)
-    for idx, data in form.iterrows():
+    for idx, (n_data, data) in enumerate(form.iterrows()):
         for col_idx, (key, value) in enumerate(data.items()):
             worksheet.write(idx + 1, col_idx, value, row_format)
     workbook.close()
@@ -57,12 +58,13 @@ def df_to_form(df):
     form = df
     form['ФИО'] = form['lastname'] + ' ' + form['firstname']
     form['E-mail'] = form['email']
-    form['Ссылка на видео'] = url + '/' + form['media_path']
+    # form['Ссылка на видео'] = url + '/' + form['media_path']
+    form['Ссылка на видео'] = form['video_url']
     form['Оценка видео'] = ''
     form['Оценка резюме'] = ''
     form['Средняя оценка за тесты'] = form['percents']
-    form = form.drop(['media_path', 'firstname', 'lastname', 'percents', 'username', 'email', 'filearea',
-                      'contenthash', 'filename'], axis=1)
+    form = form.drop(['username', 'firstname', 'lastname', 'percents', 'test_complited',
+                      'email', 'userid', 'video_url'], axis=1)
     return form
 
 
@@ -73,18 +75,16 @@ def get_actual_report_folder():
     return path
 
 
-def copy_user_files(contenthash, repository_type, destination_path, filename):
-    # user_files_sql = open('user_files.sql').read()
-    # sql_result = session.execute(user_files_sql.format(userid))
-    path = os.path.join(config.MOODLEDATA_DIR,
-                        repository_type,
-                        contenthash[:2],
-                        contenthash[2:4],
-                        contenthash)
-    # destination_path = os.path.join(get_actual_report_folder(), username)
-    # if not os.path.exists(destination_path):
-    #     os.makedirs(destination_path)
-    copyfile(path, os.path.join(destination_path, filename))
+def copy_user_files(contenthash, destination_path, filename):
+    repository_types = ['video', 'scan']
+    for repository_type in repository_types:
+        path = os.path.join(config.MOODLEDATA_DIR,
+                            repository_type,
+                            contenthash[:2],
+                            contenthash[2:4],
+                            contenthash)
+        if os.path.exists(path):
+            copyfile(path, os.path.join(destination_path, filename))
 
 
 if os.path.isfile(config.SENT_CVS):
@@ -92,10 +92,9 @@ if os.path.isfile(config.SENT_CVS):
         unpickler = pickle.Unpickler(f)
         sent_cvs = unpickler.load()
 
-# form = df_to_form(df)
-# form_to_excel(form, 'report', form.keys())
 env = Environment(loader=FileSystemLoader('templates'))
 template = env.get_template('report.html')
+template_doc = env.get_template('report_doc.html')
 rows = []
 for idx, row in df.iterrows():
     # if row['username'] not in sent_cvs:
@@ -107,24 +106,38 @@ with open(config.SENT_CVS, 'wb') as f:
     pickle.dump(sent_cvs, f)
 
 if rows:
-    video_rows = []
+    # video_rows = []
+    user_files = []
     for row in rows:
-        if 'submission_files' in row['filearea']:
-            video_rows.append(row)
-    form = df_to_form(pd.DataFrame(video_rows))
+        user_files_sql = open('user_files.sql').read()
+        files = session.execute(user_files_sql.format(row['userid']))
+        df_user_files = pd.DataFrame(files.fetchall(), columns=files.keys())
+        user_files.append(df_user_files)
+        for idx, file_row in df_user_files.iterrows():
+            if 'submission_files' in file_row['filearea']:
+                row['video_url'] = url + '/' + file_row['filename']
+    #     if 'submission_files' in row['filearea']:
+    #         video_rows.append(row)
+    # form = df_to_form(pd.DataFrame(video_rows))
+    form = df_to_form(pd.DataFrame(rows))
+    # print(form)
     form_to_excel(form, 'report', form.keys())
-    for idx, row in enumerate(rows):
+    for idx, row in enumerate(rows):  # video_rows
         cv = report.get_user_cv_from_db(row['username'])
         output_from_parsed_template = template.render(cv.__dict__)
+        output_from_parsed_template_doc = template_doc.render(cv.__dict__)
         with open("new_report.html", "w", encoding='utf-8') as f:
             f.write(output_from_parsed_template)
+        with open("new_report_doc.html", "w", encoding='utf-8') as f:
+            f.write(output_from_parsed_template_doc)
         destination_path = os.path.join(get_actual_report_folder(), row['username'])
         if not os.path.exists(destination_path):
             os.makedirs(destination_path)
         filename = row['lastname'] + '_' + row['firstname']
         report.make_doc(os.path.join(destination_path, filename) + '.doc')
-        if 'submission_files' not in row['filearea']:
-            if 'private' not in row['filearea']:
-                copy_user_files(row['contenthash'], 'video', destination_path, row['filename'])
-            else:
-                copy_user_files(row['contenthash'], 'scan', destination_path, row['filename'])
+        report.make_pdf(os.path.join(destination_path, filename) + '.pdf')
+        print(user_files[idx])
+        for n, file_row in user_files[idx].iterrows():
+            if 'submission_files' not in file_row['filearea']:
+                copy_user_files(file_row['contenthash'], destination_path, file_row['filename'])
+

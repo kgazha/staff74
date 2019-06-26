@@ -23,13 +23,6 @@ h3 {
     padding-top: 70px;
 }
 
-#photo {
-    float: left;
-    height: 200px;
-    width: 180px;
-    background-color: #d7d7d7;
-}
-
 #name {
     margin: auto;
     width: auto;

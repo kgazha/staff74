@@ -11,7 +11,7 @@ session = sessionmaker(bind=config.ENGINE)()
 
 
 class CV:
-    db_codenames = {'dateofbirth': 'date_of_birth',
+    db_codenames = {'dateofbirth1': 'date_of_birth',
                     'workplace1': 'current_position',
                     'fieldofwork': 'current_activity_area',
                     'typeofwork': 'current_activity_type',
@@ -90,10 +90,10 @@ def print_doc(name="out.pdf"):
     os.startfile(name, "print")
 
 
-def get_user_cv_from_db(username):
+def get_user_cv_from_db(userid):
     with open('cv_info.sql', 'r') as f:
         query = f.read()
-    df = pd.DataFrame(session.execute(query.format(username)).fetchall(),
+    df = pd.DataFrame(session.execute(query.format(userid)).fetchall(),
                       columns=['username', 'firstname', 'lastname', 'email',
                                'icq', 'skype', 'institution', 'department',
                                'address', 'city', 'description', 'middlename',

@@ -5,4 +5,4 @@ SELECT username, firstname, lastname, email, icq, skype,
 FROM public.mdl_user
 LEFT JOIN public.mdl_user_info_data ON userid = mdl_user.id
 LEFT JOIN public.mdl_user_info_field ON mdl_user_info_field.id = mdl_user_info_data.fieldid
-WHERE mdl_user.username = '{0}'
+WHERE mdl_user.id = '{0}'

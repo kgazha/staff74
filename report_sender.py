@@ -9,6 +9,8 @@ import report
 from shutil import copyfile
 from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.orm import sessionmaker
+from PIL import Image
+# from selenium_parser import MoodleParser
 
 
 session = sessionmaker(bind=config.ENGINE)()
@@ -105,8 +107,16 @@ for idx, row in df.iterrows():
 with open(config.SENT_CVS, 'wb') as f:
     pickle.dump(sent_cvs, f)
 
+# mp = MoodleParser()
+# mp.login()
+# try:
+#     mp.get_user_profile_photo(41, r'C:\projects\team74')
+#     mp.get_user_profile_photo(14, r'C:\projects\team74')
+# except Exception as ex:
+#     print(ex)
+# mp.close()
+# exit()
 if rows:
-    # video_rows = []
     user_files = []
     for row in rows:
         user_files_sql = open('user_files.sql').read()
@@ -116,28 +126,46 @@ if rows:
         for idx, file_row in df_user_files.iterrows():
             if 'submission_files' in file_row['filearea']:
                 row['video_url'] = url + '/' + file_row['filename']
-    #     if 'submission_files' in row['filearea']:
-    #         video_rows.append(row)
-    # form = df_to_form(pd.DataFrame(video_rows))
     form = df_to_form(pd.DataFrame(rows))
-    # print(form)
     form_to_excel(form, 'report', form.keys())
     for idx, row in enumerate(rows):  # video_rows
-        cv = report.get_user_cv_from_db(row['username'])
-        output_from_parsed_template = template.render(cv.__dict__)
+        cv = report.get_user_cv_from_db(row['userid'])
         output_from_parsed_template_doc = template_doc.render(cv.__dict__)
-        with open("new_report.html", "w", encoding='utf-8') as f:
-            f.write(output_from_parsed_template)
         with open("new_report_doc.html", "w", encoding='utf-8') as f:
             f.write(output_from_parsed_template_doc)
-        destination_path = os.path.join(get_actual_report_folder(), row['username'])
+        destination_path = os.path.join(get_actual_report_folder(), row['lastname'] + ' ' + row['firstname'])
         if not os.path.exists(destination_path):
             os.makedirs(destination_path)
         filename = row['lastname'] + '_' + row['firstname']
         report.make_doc(os.path.join(destination_path, filename) + '.doc')
-        report.make_pdf(os.path.join(destination_path, filename) + '.pdf')
-        print(user_files[idx])
+        # print(user_files[idx])
+        user_files_path = os.path.join(destination_path, 'приложения')
+        if not os.path.exists(user_files_path):
+            os.makedirs(user_files_path)
+        photo_path = ''
         for n, file_row in user_files[idx].iterrows():
             if 'submission_files' not in file_row['filearea']:
-                copy_user_files(file_row['contenthash'], destination_path, file_row['filename'])
-
+                print(file_row['contenthash'], user_files_path, file_row['filename'])
+                copy_user_files(file_row['contenthash'], user_files_path, file_row['filename'])
+            if 'private' not in file_row['filearea'] and 'draft' in file_row['media_path'] \
+                    and file_row['filename'].split('.')[-1] in ['gif', 'jpe', 'jpeg', 'jpg', 'png', 'svg', 'svgz']:
+                # print('DA')
+                photo_path = os.path.join(user_files_path, file_row['filename'])
+        img = Image.open(photo_path)
+        basewidth = 113
+        basehight = 151
+        # img = Image.open('somepic.jpg')
+        #wpercent = (basewidth/float(img.size[0]))
+        #hsize = int((float(img.size[1])*float(wpercent)))
+        #img = img.resize((basewidth, basehight), Image.ANTIALIAS)
+        img.thumbnail((basewidth, basehight), Image.ANTIALIAS)
+        img.save(photo_path) 
+        #img.thumbnail(128, Image.ANTIALIAS)
+        #img.save(photo_path, "JPEG")
+        # pdf
+        cv.__dict__.update({'photo': photo_path})
+        # print(cv.__dict__)
+        output_from_parsed_template = template.render(cv.__dict__)
+        with open("new_report.html", "w", encoding='utf-8') as f:
+            f.write(output_from_parsed_template)
+        report.make_pdf(os.path.join(destination_path, filename) + '.pdf')

@@ -90,7 +90,7 @@ template_doc = env.get_template('report_doc.html')
 
 class User:
     def __init__(self, userid=None, video_url=None, username=None, lastname=None,
-                 firstname=None, patronymic=None, email=None):
+                 firstname=None, patronymic=None, email=None, city=None):
         self.userid = userid
         self.video_url = video_url
         self.username = username
@@ -98,6 +98,9 @@ class User:
         self.firstname = firstname
         self.patronymic = patronymic
         self.email = email
+        self.city = city
+        self.firstaccess = None
+        self.confirmed = 0
         self._percents = 0
         self.test_completed = 0
         self.grades = []
@@ -117,7 +120,7 @@ class User:
     def __repr__(self):
         return 'user_' + str(self.userid)
 
-    def get_main_user_info(self):
+    def get_user_main_info(self):
         user_info_sql = open('main_user_info.sql').read()
         user_info = session.execute(user_info_sql.format(self.userid))
         df_user_info = pd.DataFrame(user_info.fetchall(), columns=user_info.keys())
@@ -150,7 +153,10 @@ class User:
             self.grades.append(int(val))
 
     def get_user_info(self):
-        # self.get_main_user_info()
+        self.get_user_main_info()
+        self.get_user_rest_info()
+
+    def get_user_rest_info(self):
         self.get_user_files()
         self.get_user_video_presentation()
         self.get_test_results()
@@ -341,11 +347,20 @@ class UserContent:
                 self.copy_user_file(file)
 
 
+def get_user_data(userid):
+    user = User(userid=userid)
+    user.get_user_info()
+    content = UserContent(user)
+    content.copy_user_files()
+    content.cv_to_pdf()
+
+
 if __name__ == '__main__':
+    # get_user_data(461)
     r = Report()
     users = r.get_new_successful_users()
     if users:
-        [user.get_user_info() for user in users]
+        [user.get_user_rest_info() for user in users]
         form = Report.get_report_form(users)
         Report.form_to_excel(form)
         for user in users:

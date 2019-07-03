@@ -91,8 +91,8 @@ def print_doc(name="out.pdf"):
 
 
 def get_user_cv_from_db(userid):
-    with open('cv_info.sql', 'r') as f:
-        query = f.read()
+    with open('cv_info.sql', 'r') as file:
+        query = file.read()
     df = pd.DataFrame(session.execute(query.format(userid)).fetchall(),
                       columns=['username', 'firstname', 'lastname', 'email',
                                'icq', 'skype', 'institution', 'department',
@@ -124,7 +124,3 @@ if __name__ == '__main__':
     output_from_parsed_template = template.render(cv.__dict__)
     with open("new_report.html", "w", encoding='utf-8') as f:
         f.write(output_from_parsed_template)
-    # make_document(cv)
-    # make_pdf()
-    # make_doc()
-    # print_doc()

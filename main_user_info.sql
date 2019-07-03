@@ -14,5 +14,4 @@ INNER JOIN
     WHERE shortname = 'otchestvo'
 ) s2
 ON s.userid = s2.userid
-WHERE test_completed = 5
-AND percents >= 70
+WHERE s.userid = '{0}'

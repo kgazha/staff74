@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 
 DATABASE_NAME = 'moodle'
 DATABASE_HOST = '172.153.153.159:5433'
-DATABASE_PASSWORD = 'Ue<tH%2HfP6GhJDfQl&!'
+DATABASE_PASSWORD = ''
 
 DATABASE_USER = 'postgres'
 DATABASE_ENGINE = 'postgresql+psycopg2'
@@ -15,11 +15,6 @@ ENGINE = create_engine('{0}://{1}:{2}@{3}/{4}'.format(DATABASE_ENGINE,
 
 PATH_WKTHMLTOPDF = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
 
-EMAIL_FROM = 'k.gazha@mininform74.ru'
-UNSUCCESSFUL_TEMPLATE = 'unsuccessful_template.txt'
-SUCCESSFUL_TEMPLATE = 'successful_template.txt'
-SENT_EMAILS_FILENAME = 'sent_emails.pkl'
-SENT_CVS = 'sent_cvs.pkl'
-SMTP_SERVER = 'mail.gov74.ru'
-BASE_DIR = r'C:\команда74'
+PROCESSED_USERS = 'processed_users.pkl'
+BASE_DIR = r'Z:\команда74'
 MOODLEDATA_DIR = r'C:\server\moodledata\repository'

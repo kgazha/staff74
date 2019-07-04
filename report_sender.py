@@ -16,7 +16,7 @@ from detect import detect_image
 
 
 session = sessionmaker(bind=config.ENGINE)()
-url = 'https://команда74.рф/konkurs/pluginfile.php/49/assignsubmission_file/submission_files'
+url = 'https://команда74.рф/konkurs/pluginfile.php'
 
 
 def get_header_format(workbook):
@@ -143,7 +143,7 @@ class User:
             self.get_user_files()
         for file_obj in self.files:
             if 'submission_files' in file_obj.filearea:
-                self.video_url = '/'.join([url, str(file_obj.itemid), file_obj.filename])
+                self.video_url = '/'.join([url, file_obj.media_path])
 
     def get_test_results(self):
         user_test_results_sql = open('user_test_results.sql').read()
@@ -164,21 +164,11 @@ class User:
 
 class File:
     def __init__(self, contenthash=None, media_path=None, filearea=None,
-                 filename=None, itemid=None):
+                 filename=None):
         self.contenthash = contenthash
         self.media_path = media_path
         self.filearea = filearea
         self.filename = filename
-        self._itemid = itemid
-
-    @property
-    def itemid(self):
-        return self._itemid
-
-    @itemid.setter
-    def itemid(self, value):
-        if not pd.isnull(value):
-            self._itemid = int(value)
 
     def __str__(self):
         return self.filename
@@ -357,7 +347,6 @@ def get_user_data(userid):
 
 
 if __name__ == '__main__':
-    # get_user_data(461)
     r = Report()
     users = r.get_new_successful_users()
     if users:

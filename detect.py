@@ -24,7 +24,7 @@ def detect_image(filename, template_filename):
 
     res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.8
-    loc = np.where( res >= threshold)
+    loc = np.where(res >= threshold)
     if loc[0].size > 0:
         return True
     return False

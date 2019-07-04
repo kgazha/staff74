@@ -1,4 +1,4 @@
-SELECT test_completed, s.userid FROM
+SELECT test_completed, s.userid, percents FROM
 (
     SELECT username, firstname, lastname, ROUND(sum(sumgrades)*100/50) AS percents, count(quiz) AS test_completed, email, userid
     FROM public.mdl_quiz_attempts

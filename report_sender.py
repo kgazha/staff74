@@ -223,6 +223,7 @@ class Report:
 
     @staticmethod
     def save_processed_user_ids(processed_user_ids):
+        processed_user_ids += Report.get_processed_user_ids()
         with open(config.PROCESSED_USERS, 'wb') as file:
             pickle.dump(processed_user_ids, file)
 
@@ -360,7 +361,7 @@ if __name__ == '__main__':
     r = Report()
     users = r.get_new_successful_users()
     if users:
-        [user.get_user_rest_info() for user in users]
+        [user.get_user_info() for user in users]
         form = Report.get_report_form(users)
         Report.form_to_excel(form)
         for user in users:

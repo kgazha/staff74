@@ -166,7 +166,7 @@ class File:
                        'ai', 'bmp', 'gdraw', 'ico', 'pct', 'pic', 'pict', 'tif', 'tiff',
                        '3gp', 'asf', 'avi', 'dif', 'dv', 'f4v', 'flv', 'm4v', 'mov',
                        'movie', 'mp4', 'mpe', 'mpeg', 'mpg', 'ogv', 'qt', 'rmvb', 'rv',
-                       'swf', 'swfl', 'webm', 'wmv']
+                       'swf', 'swfl', 'webm', 'wmv', 'zip', 'rar', '7z']
 
     def __init__(self, contenthash=None, media_path=None,
                  filearea=None, filename=None):
@@ -235,7 +235,8 @@ class Report:
 
     @staticmethod
     def save_processed_user_ids(processed_user_ids):
-        processed_user_ids += Report.get_processed_user_ids()
+        if Report.get_processed_user_ids():
+            processed_user_ids += Report.get_processed_user_ids()
         with open(config.PROCESSED_USERS, 'wb') as file:
             pickle.dump(processed_user_ids, file)
 
@@ -312,7 +313,8 @@ class UserContent:
         if not profile_photo_template:
             return photo_path
         detected_photo = get_profile_photo_filename(self.user_files_path, profile_photo_template)
-        photo_path = os.path.join(self.user_files_path, detected_photo)
+        if detected_photo:
+            photo_path = os.path.join(self.user_files_path, detected_photo)
         return photo_path
 
     def cv_to_doc(self):
@@ -323,7 +325,7 @@ class UserContent:
 
     def cv_to_pdf(self):
         photo_path = self.get_photo_path()
-        self.cv.__dict__.update({'photo': photo_path})
+        self.cv.__dict__.update({'photo': photo_path, 'pdf': True})
         output_from_parsed_template = template.render(self.cv.__dict__)
         with open("new_report.html", "w", encoding='utf-8') as f:
             f.write(output_from_parsed_template)
@@ -338,7 +340,6 @@ class UserContent:
                                 file.contenthash[2:4],
                                 file.contenthash)
             if os.path.exists(path):
-                print('>>>>', self.user_files_path, file.__dict__, '<<<<<<<<<<')
                 copyfile(path, os.path.join(self.user_files_path, file.filename))
 
     def copy_user_files(self):

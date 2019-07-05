@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    {% if photo %}
     <div class="mainDetails">
         <div id="photo">
             <img src="{{ photo }}" />
@@ -14,6 +15,11 @@
             <h1>{{ fio }}</h1>
         </div>
     </div>
+    {% else %}
+    <div id="name">
+        <h1>{{ fio }}</h1>
+    </div>
+    {% endif %}
     <table>
         <tr>
             <td class="summarySection">Контактные данные: телефон, e-mail</td>

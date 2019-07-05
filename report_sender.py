@@ -85,7 +85,6 @@ def get_profile_photo_filename(user_files_path, template_filename):
 
 env = Environment(loader=FileSystemLoader('templates'))
 template = env.get_template('report.html')
-template_doc = env.get_template('report_doc.html')
 
 
 class User:
@@ -308,7 +307,7 @@ class UserContent:
         return photo_path
 
     def cv_to_doc(self):
-        output_from_parsed_template_doc = template_doc.render(self.cv.__dict__)
+        output_from_parsed_template_doc = template.render(self.cv.__dict__)
         with open("new_report_doc.html", "w", encoding='utf-8') as file:
             file.write(output_from_parsed_template_doc)
         report.make_doc(os.path.join(self.destination_path, self.filename) + '.doc')

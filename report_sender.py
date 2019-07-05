@@ -162,12 +162,35 @@ class User:
 
 
 class File:
-    def __init__(self, contenthash=None, media_path=None, filearea=None,
-                 filename=None):
+    allowed_formats = ['gif', 'jpe', 'jpeg', 'jpg', 'png', 'svg', 'svgz', 'pdf',
+                       'ai', 'bmp', 'gdraw', 'ico', 'pct', 'pic', 'pict', 'tif', 'tiff',
+                       '3gp', 'asf', 'avi', 'dif', 'dv', 'f4v', 'flv', 'm4v', 'mov',
+                       'movie', 'mp4', 'mpe', 'mpeg', 'mpg', 'ogv', 'qt', 'rmvb', 'rv',
+                       'swf', 'swfl', 'webm', 'wmv']
+
+    def __init__(self, contenthash=None, media_path=None,
+                 filearea=None, filename=None):
         self.contenthash = contenthash
         self.media_path = media_path
         self.filearea = filearea
+        self._filename = ''
         self.filename = filename
+
+    @property
+    def filename(self):
+        return self._filename
+
+    @filename.setter
+    def filename(self, value):
+        if type(value) == list:
+            for name in value:
+                if name.lower().split('.')[-1] in File.allowed_formats:
+                    self._filename = name
+                    break
+            if not self._filename:
+                raise Exception('Invalid file extension')
+        else:
+            self._filename = value
 
     def __str__(self):
         return self.filename
@@ -272,9 +295,9 @@ class UserContent:
         if not os.path.exists(destination_path):
             os.makedirs(destination_path)
         else:
-            while os.path.exists(destination_path):
-                destination_path += ' ' + str(self.user.userid)
-            os.makedirs(destination_path)
+            destination_path += '_' + str(self.user.userid)
+            if not os.path.exists(destination_path):
+                os.makedirs(destination_path)
         return destination_path
 
     def __get_user_files_path(self):
@@ -285,25 +308,11 @@ class UserContent:
 
     def get_photo_path(self):
         photo_path = ''
-        for file in self.user.files:
-            if 'submission_files' not in file.filearea:
-                copy_user_files(file.contenthash, self.user_files_path, file.filename)
-            if 'private' not in file.filearea and 'draft' in file.media_path \
-                    and file.filename.split('.')[-1] in ['gif', 'jpe', 'jpeg', 'jpg', 'png', 'svg', 'svgz']:
-                photo_path = os.path.join(self.user_files_path, file.filename)
-        if not photo_path:
-            profile_photo_template = get_profile_photo_template(self.user_files_path, self.user.userid)
-            if not profile_photo_template:
-                return photo_path
-            detected_photo = get_profile_photo_filename(self.user_files_path, profile_photo_template)
-            photo_path = os.path.join(self.user_files_path, detected_photo)
-        else:
-            img = Image.open(photo_path)
-            basewidth = 113
-            basehight = 151
-            img.thumbnail((basewidth, basehight), Image.ANTIALIAS)
-            image_filename = '.'.join(photo_path.split('.')[:-1]) + '_cv' + '.' + photo_path.split('.')[-1]
-            img.save(image_filename)
+        profile_photo_template = get_profile_photo_template(self.user_files_path, self.user.userid)
+        if not profile_photo_template:
+            return photo_path
+        detected_photo = get_profile_photo_filename(self.user_files_path, profile_photo_template)
+        photo_path = os.path.join(self.user_files_path, detected_photo)
         return photo_path
 
     def cv_to_doc(self):
@@ -329,6 +338,7 @@ class UserContent:
                                 file.contenthash[2:4],
                                 file.contenthash)
             if os.path.exists(path):
+                print('>>>>', self.user_files_path, file.__dict__, '<<<<<<<<<<')
                 copyfile(path, os.path.join(self.user_files_path, file.filename))
 
     def copy_user_files(self):

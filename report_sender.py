@@ -169,12 +169,13 @@ class File:
                        'swf', 'swfl', 'webm', 'wmv', 'zip', 'rar', '7z']
 
     def __init__(self, contenthash=None, media_path=None,
-                 filearea=None, filename=None):
+                 filearea=None, filename=None, mimetype=None):
         self.contenthash = contenthash
         self.media_path = media_path
         self.filearea = filearea
         self._filename = ''
         self.filename = filename
+        self.mimetype = mimetype
 
     @property
     def filename(self):
@@ -182,15 +183,24 @@ class File:
 
     @filename.setter
     def filename(self, value):
+        if not value:
+            return
         if type(value) == list:
             for name in value:
                 if name.lower().split('.')[-1] in File.allowed_formats:
                     self._filename = name
                     break
             if not self._filename:
-                raise Exception('Invalid file extension')
+                self._filename = value[0]
         else:
             self._filename = value
+        if not self._filename.lower().split('.')[-1] in File.allowed_formats and self.mimetype:
+            if 'pdf' in self.mimetype:
+                self._filename += 'pdf'
+            elif 'image' in self.mimetype:
+                self._filename += 'jpg'
+            elif 'zip' in self.mimetype:
+                self._filename += 'zip'
 
     def __str__(self):
         return self.filename

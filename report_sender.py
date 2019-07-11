@@ -76,8 +76,13 @@ def get_profile_photo_filename(user_files_path, template_filename):
                 and f.lower() != template_filename.lower():
             files.append(f)
     for file in files:
-        result = detect_image(os.path.join(user_files_path, file),
-                              os.path.join(user_files_path, template_filename))
+        result = None
+        try:
+            result = detect_image(os.path.join(user_files_path, file),
+                                  os.path.join(user_files_path, template_filename))
+        except Exception as e:
+            print(e, file, template_filename)
+            continue
         if result:
             return file
     return None

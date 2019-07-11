@@ -9,7 +9,7 @@ def detect_image(filename, template_filename):
     stream = open(filename, "rb")
     bytes = bytearray(stream.read())
     numpyarray = np.asarray(bytes, dtype=np.uint8)
-    img_rgb = cv2.imdecode(numpyarray, cv2.IMREAD_UNCHANGED)
+    img_rgb = cv2.imdecode(numpyarray, cv2.COLOR_BGR2GRAY)
 
     width = 100
     height = int(img_rgb.shape[0] * 100 / img_rgb.shape[1])
@@ -20,10 +20,10 @@ def detect_image(filename, template_filename):
     stream = open(template_filename, "rb")
     bytes = bytearray(stream.read())
     numpyarray = np.asarray(bytes, dtype=np.uint8)
-    template = cv2.imdecode(numpyarray, cv2.IMREAD_UNCHANGED)
+    template = cv2.imdecode(numpyarray, cv2.COLOR_BGR2GRAY)
 
     res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.8
+    threshold = 0.6
     loc = np.where(res >= threshold)
     if loc[0].size > 0:
         return True
